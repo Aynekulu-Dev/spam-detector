@@ -1,10 +1,4 @@
 #!/bin/bash
-echo "🔧 Building ML Service..."
-
-# Install dependencies
+echo "🚀 Building Ultra-Light ML Service..."
 pip install -r requirements.txt
-
-# Create models directory
-mkdir -p models
-
-echo "🚀 ML Service build completed"
+echo "✅ Build completed successfully!"
