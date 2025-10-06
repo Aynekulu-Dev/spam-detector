@@ -3,7 +3,6 @@ Django settings for spam_project project.
 """
 import os
 from pathlib import Path
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +25,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add whitenoise for static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -55,32 +54,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'spam_project.wsgi.application'
 
-# Database configuration
-# Use PostgreSQL in production, SQLite in development
-# Database configuration
-# Use PostgreSQL in production, SQLite in development
-if os.environ.get('DATABASE_URL'):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DATABASE_NAME', 'spam_detector'),
-            'USER': os.environ.get('DATABASE_USER', ''),
-            'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
-            'HOST': os.environ.get('DATABASE_HOST', ''),
-            'PORT': os.environ.get('DATABASE_PORT', '5432'),
-        }
+# Database configuration - Using SQLite for both development and production
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-    # Also support DATABASE_URL format
-    db_from_env = dj_database_url.config(conn_max_age=600)
-    if db_from_env:
-        DATABASES['default'].update(db_from_env)
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -106,7 +86,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # For production
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
@@ -125,10 +105,4 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-if os.environ.get('ML_SERVICE_HOST'):
-    ML_SERVICE_HOST = os.environ.get('ML_SERVICE_HOST')
-    ML_SERVICE_PORT = os.environ.get('ML_SERVICE_PORT', '10000')
-    ML_SERVICE_URL = f"https://{ML_SERVICE_HOST}"  # Render uses HTTPS
-else:
-    # For local development
-    ML_SERVICE_URL = os.environ.get('ML_SERVICE_URL', 'http://localhost:8001')
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
