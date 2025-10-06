@@ -1,0 +1,48 @@
+# Django
+*.pyc
+__pycache__/
+*.sqlite3
+db.sqlite3
+*.log
+media/
+staticfiles/
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.env
+.venv
+
+# ML Models
+*.pkl
+*.joblib
+models/
+*.h5
+*.pth
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# Environment variables
+.env
+.env.local
+.env.prod
