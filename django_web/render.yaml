@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: spam-detector-web
+    env: python
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    startCommand: gunicorn spam_project.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: spam_detector_db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: ALLOWED_HOSTS
+        value: spam-detector-web.onrender.com
+      - key: ML_SERVICE_URL
+        fromService:
+          type: web
+          name: spam-detector-ml
+          property: url
+
+databases:
+  - name: spam_detector_db
+    plan: free
