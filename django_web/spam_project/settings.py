@@ -57,14 +57,23 @@ WSGI_APPLICATION = 'spam_project.wsgi.application'
 
 # Database configuration
 # Use PostgreSQL in production, SQLite in development
+# Database configuration
+# Use PostgreSQL in production, SQLite in development
 if os.environ.get('DATABASE_URL'):
     DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DATABASE_NAME', 'spam_detector'),
+            'USER': os.environ.get('DATABASE_USER', ''),
+            'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
+            'HOST': os.environ.get('DATABASE_HOST', ''),
+            'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        }
     }
+    # Also support DATABASE_URL format
+    db_from_env = dj_database_url.config(conn_max_age=600)
+    if db_from_env:
+        DATABASES['default'].update(db_from_env)
 else:
     DATABASES = {
         'default': {
@@ -116,3 +125,10 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
+if os.environ.get('ML_SERVICE_HOST'):
+    ML_SERVICE_HOST = os.environ.get('ML_SERVICE_HOST')
+    ML_SERVICE_PORT = os.environ.get('ML_SERVICE_PORT', '10000')
+    ML_SERVICE_URL = f"https://{ML_SERVICE_HOST}"  # Render uses HTTPS
+else:
+    # For local development
+    ML_SERVICE_URL = os.environ.get('ML_SERVICE_URL', 'http://localhost:8001')

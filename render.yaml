@@ -1,8 +1,22 @@
 services:
   - type: web
+    name: spam-detector-ml
+    env: python
+    plan: free
+    rootDir: ml_service
+    buildCommand: |
+      pip install -r requirements.txt
+      python utils.py
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+  - type: web
     name: spam-detector-web
     env: python
     plan: free
+    rootDir: django_web
     buildCommand: |
       pip install -r requirements.txt
       python manage.py collectstatic --noinput
@@ -19,11 +33,17 @@ services:
         value: false
       - key: ALLOWED_HOSTS
         value: spam-detector-web.onrender.com
-      - key: ML_SERVICE_URL
+      # Use host and port properties instead of url
+      - key: ML_SERVICE_HOST
         fromService:
           type: web
           name: spam-detector-ml
-          property: url
+          property: host
+      - key: ML_SERVICE_PORT
+        fromService:
+          type: web
+          name: spam-detector-ml
+          property: port
 
 databases:
   - name: spam_detector_db
