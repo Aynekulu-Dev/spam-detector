@@ -6,10 +6,15 @@ from sklearn.model_selection import train_test_split
 import joblib
 import re
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 def clean_text(text):
     """Basic text cleaning"""
-    text = text.lower()
+    if not text:
+        return ""
+    text = str(text).lower()
     text = re.sub(r'[^a-zA-Z\s]', '', text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text
@@ -17,6 +22,8 @@ def clean_text(text):
 def train_model():
     """Train a simple spam classification model"""
     try:
+        logger.info("Starting model training...")
+        
         # Sample spam/ham dataset
         data = {
             'text': [
@@ -45,17 +52,17 @@ def train_model():
         }
         
         df = pd.DataFrame(data)
-        print("✅ DataFrame created successfully")
+        logger.info("✅ DataFrame created successfully")
         
         df['cleaned_text'] = df['text'].apply(clean_text)
-        print("✅ Text cleaning completed")
+        logger.info("✅ Text cleaning completed")
         
         # Create features
         vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
         X = vectorizer.fit_transform(df['cleaned_text'])
         y = df['label']
         
-        print("✅ Features created successfully")
+        logger.info("✅ Features created successfully")
         
         # Split data
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -64,7 +71,7 @@ def train_model():
         model = LogisticRegression(random_state=42, max_iter=1000)
         model.fit(X_train, y_train)
         
-        print("✅ Model training completed")
+        logger.info("✅ Model training completed")
         
         # Create models directory if it doesn't exist
         os.makedirs('models', exist_ok=True)
@@ -77,14 +84,14 @@ def train_model():
         train_accuracy = model.score(X_train, y_train)
         test_accuracy = model.score(X_test, y_test)
         
-        print(f"✅ Model trained and saved successfully!")
-        print(f"📊 Training Accuracy: {train_accuracy:.2f}")
-        print(f"📊 Test Accuracy: {test_accuracy:.2f}")
+        logger.info(f"✅ Model trained and saved successfully!")
+        logger.info(f"📊 Training Accuracy: {train_accuracy:.2f}")
+        logger.info(f"📊 Test Accuracy: {test_accuracy:.2f}")
         
         return model, vectorizer
         
     except Exception as e:
-        print(f"❌ Error during model training: {e}")
+        logger.error(f"❌ Error during model training: {e}")
         raise e
 
 # Train model if running directly

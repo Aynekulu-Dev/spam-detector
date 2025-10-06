@@ -5,14 +5,23 @@ from typing import List, Optional
 import joblib
 import numpy as np
 import logging
-from utils import clean_text
 import os
+import sys
+
+# Add the current directory to Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from utils import clean_text
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Spam Detection API", version="1.0.0")
+app = FastAPI(
+    title="Spam Detection API",
+    description="Machine Learning API for spam detection",
+    version="1.0.0"
+)
 
 # Add CORS middleware
 app.add_middleware(
@@ -43,27 +52,33 @@ async def load_model():
         model_path = 'models/spam_model.pkl'
         vectorizer_path = 'models/vectorizer.pkl'
         
-        # Train model if it doesn't exist
-        if not os.path.exists(model_path):
+        logger.info("🔍 Loading ML model...")
+        
+        # Check if model files exist
+        if not os.path.exists(model_path) or not os.path.exists(vectorizer_path):
+            logger.warning("❌ Model files not found. Training new model...")
             from utils import train_model
             model, vectorizer = train_model()
         else:
+            # Load existing model
             model = joblib.load(model_path)
             vectorizer = joblib.load(vectorizer_path)
             logger.info("✅ ML model loaded successfully!")
             
     except Exception as e:
         logger.error(f"❌ Error loading model: {e}")
-        raise e
+        # Don't raise exception, allow service to start without model
+        logger.info("🔄 Service starting without model - will train on first request")
 
 @app.get("/")
 async def root():
     return {
         "message": "Spam Detection API", 
         "status": "running",
+        "model_loaded": model is not None,
         "endpoints": {
             "health": "/health",
-            "predict": "/predict",
+            "predict": "/predict", 
             "batch_predict": "/batch_predict"
         }
     }
@@ -80,7 +95,10 @@ async def health_check():
 async def predict(request: PredictionRequest):
     try:
         if model is None or vectorizer is None:
-            raise HTTPException(status_code=503, detail="Model not loaded")
+            # Try to load model if not loaded
+            await load_model()
+            if model is None:
+                raise HTTPException(status_code=503, detail="Model not loaded. Please try again.")
         
         if not request.text.strip():
             raise HTTPException(status_code=400, detail="Text cannot be empty")
@@ -112,6 +130,9 @@ async def predict(request: PredictionRequest):
 async def batch_predict(texts: List[str]):
     """Endpoint for batch predictions"""
     try:
+        if model is None or vectorizer is None:
+            raise HTTPException(status_code=503, detail="Model not loaded")
+            
         results = []
         for text in texts:
             cleaned_text = clean_text(text)
@@ -132,4 +153,5 @@ async def batch_predict(texts: List[str]):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001, reload=True)
+    port = int(os.environ.get("PORT", 8001))
+    uvicorn.run(app, host="0.0.0.0", port=port)
