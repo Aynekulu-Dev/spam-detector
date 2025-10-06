@@ -1,37 +1,53 @@
+# 🚀 Spam Detection System
 
-## Services
+A full-stack microservices application for real-time spam detection using Django and FastAPI with machine learning.
 
-- **Django Web**: Web interface for spam detection
-- **ML Service**: FastAPI service with spam classification model
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![Django](https://img.shields.io/badge/Django-4.2-green)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104-teal)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)
+![Render](https://img.shields.io/badge/Deployed-Render.com-blueviolet)
 
-## Setup
+## 🌟 Live Demo
 
-1. **With Docker**: `docker-compose up --build`
-2. **Without Docker**: See individual service README files
+- **Web Application**: [https://spam-detector-web.onrender.com](https://spam-detector-web.onrender.com)
+- **ML API**: [https://spam-detector-ml.onrender.com](https://spam-detector-ml.onrender.com)
+- **API Health Check**: [https://spam-detector-ml.onrender.com/health](https://spam-detector-ml.onrender.com/health)
 
-## API Endpoints
+## 📋 Table of Contents
 
-- ML Service: http://localhost:8001
-- Django Web: http://localhost:8000
-EOL
+- [Features](#features)
+- [Architecture](#architecture)
+- [Quick Start](#quick-start)
+- [Local Development](#local-development)
+- [API Documentation](#api-documentation)
+- [Deployment](#deployment)
+- [Project Structure](#project-structure)
+- [Technology Stack](#technology-stack)
+- [Contributing](#contributing)
+- [License](#license)
 
-# Create individual README files for each service
-cat > django_web/README.md << 'EOL'
-# Django Web Application
+## ✨ Features
 
-Web interface for the spam detection system.
+### 🔍 Spam Detection
+- Real-time text analysis for spam classification
+- Machine learning model with confidence scores
+- Support for multiple text formats
+- Batch processing capability
 
-## Features
+### 🌐 Web Interface
+- Modern responsive design with Bootstrap
+- Real-time prediction results
+- Prediction history tracking
+- Service status monitoring
+- RESTful API endpoints
 
-- Real-time spam detection
-- Prediction history
-- ML service integration
+### 🔧 Technical Features
+- Microservices architecture
+- PostgreSQL database for production
+- Docker containerization
+- CI/CD with automatic deployments
+- Comprehensive error handling
+- CORS enabled for cross-origin requests
 
-## Setup
-
-```bash
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
+## 🏗️ Architecture
